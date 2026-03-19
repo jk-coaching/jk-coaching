@@ -163,15 +163,8 @@ body.dark{background:#0f0f0f;color:#f0f0f0;
 
   <!-- PROGRAMME -->
   <div class="pg" id="pg-programme">
-    <div class="tab-sw">
-      <button class="tsb on" id="tab-train" onclick="switchTab('train')">💪 Entraînement</button>
-      <button class="tsb" id="tab-nutri" onclick="switchTab('nutri')">🥗 Nutrition</button>
-    </div>
-    <div id="ct-train"><div id="prog-content"><div class="empty"><div style="font-size:40px;margin-bottom:10px;">💪</div><div>Importe ton programme dans Profil</div></div></div></div>
-    <div id="ct-nutri" style="display:none;">
-      <div id="nutri-content"><div class="empty"><div style="font-size:40px;margin-bottom:10px;">🥗</div><div>Importe ta nutrition dans Profil</div></div></div>
-      <button class="btn-r" onclick="importNutrition()">📥 Importer ma nutrition</button>
-    </div>
+    <div id="nutri-content"><div class="empty"><div style="font-size:40px;margin-bottom:10px;">🥗</div><div>Importe ta nutrition dans Profil</div></div></div>
+    <button class="btn-r" onclick="importNutrition()">📥 Importer ma nutrition</button>
   </div>
 
   <!-- BILAN -->
@@ -291,8 +284,14 @@ body.dark{background:#0f0f0f;color:#f0f0f0;
     </div>
     <div class="sec">Contact Jérémie</div>
     <div class="card">
-      <div class="pr"><span style="font-size:13px;color:#9a9a9a;">WhatsApp</span><span style="font-size:13px;font-weight:500;color:#27AE60;">06 99 08 43 32</span></div>
-      <div class="pr"><span style="font-size:13px;color:#9a9a9a;">Email</span><span style="font-size:13px;font-weight:500;color:#2980B9;"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="afc5caddcac2c6ca81c4cec2efc8c2cec6c381ccc0c2">[email&#160;protected]</a></span></div>
+      <div class="pr" onclick="ouvrirWA()" style="cursor:pointer;">
+        <span style="font-size:13px;color:#9a9a9a;">WhatsApp</span>
+        <span style="font-size:13px;font-weight:500;color:#25D366;">06 99 08 43 32 ▶</span>
+      </div>
+      <div class="pr" onclick="ouvrirEmail()" style="cursor:pointer;">
+        <span style="font-size:13px;color:#9a9a9a;">Email</span>
+        <span style="font-size:13px;font-weight:500;color:#2980B9;">jeremie.kam&#64;gmail.com ▶</span>
+      </div>
     </div>
     <div class="sec">Apparence</div>
     <div class="theme-toggle">
@@ -310,15 +309,24 @@ body.dark{background:#0f0f0f;color:#f0f0f0;
     <div class="sec">Mon programme</div>
     <button class="btn-r" onclick="importProg()">📥 Importer mon programme</button>
     <button class="btn-g" onclick="importNutrition()">📥 Importer ma nutrition</button>
-    <button class="btn-o" onclick="supprimerProg()">🗑 Supprimer mon programme</button>
+    <div style="margin-top:8px;">
+      <div onclick="toggleSupprMenu()" style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--card-bg);border-radius:12px;cursor:pointer;border:1px solid var(--border);">
+        <span style="font-size:13px;color:var(--gray3);">Supprimer les programmes</span>
+        <span id="suppr-arrow" style="font-size:13px;color:var(--gray3);">▼</span>
+      </div>
+      <div id="suppr-menu" style="display:none;background:var(--card-bg);border-radius:0 0 12px 12px;border:1px solid var(--border);border-top:none;overflow:hidden;">
+        <div onclick="supprimerProg()" style="padding:13px 16px;font-size:13px;color:#C0392B;cursor:pointer;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;">🗑 Supprimer mon programme</div>
+        <div onclick="supprimerNutrition()" style="padding:13px 16px;font-size:13px;color:#C0392B;cursor:pointer;display:flex;align-items:center;gap:10px;">🗑 Supprimer mon alimentation</div>
+      </div>
+    </div>
     <button class="btn-g" style="margin-top:8px;" onclick="logout()">Se deconnecter</button>
-    <button class="btn-o" onclick="resetApp()">🔄 Réinitialiser l'app</button>
+    <button onclick="resetApp()" style="background:transparent;border:none;color:transparent;font-size:1px;padding:8px;cursor:pointer;width:100%">.</button>
   </div>
 </div>
 
 <div class="bnav" id="bnav" style="display:none;">
   <button class="nb on" onclick="goPage('home')"><span class="nb-i">🏠</span><span class="nb-l">Accueil</span></button>
-  <button class="nb" onclick="goPage('programme')"><span class="nb-i">💪</span><span class="nb-l">Programme</span></button>
+  <button class="nb" onclick="goPage('programme')"><span class="nb-i">🥗</span><span class="nb-l">Menu</span></button>
   <button class="nb" onclick="goPage('bilan')"><span class="nb-i">📊</span><span class="nb-l">Mon bilan</span></button>
   <button class="nb" onclick="goPage('videos')"><span class="nb-i">📹</span><span class="nb-l">Vidéos</span></button>
   <button class="nb" onclick="goPage('profil')"><span class="nb-i">👤</span><span class="nb-l">Profil</span></button>
@@ -384,7 +392,7 @@ function goPage(id){
   document.querySelectorAll('.nb').forEach(function(b){if(b.getAttribute('onclick')&&b.getAttribute('onclick').indexOf(id)>-1)b.classList.add('on');});
   if(id==='home')renderHome();
   if(id==='profil'){renderProfil();renderBilanHist();}
-  if(id==='programme')renderProgramme();
+  if(id==='programme')renderNutrition();
 }
 
 function renderHome(){
@@ -439,8 +447,9 @@ function renderSeances(){
       var greenDot=allDone?'<div style="width:8px;height:8px;border-radius:50%;background:#27AE60;"></div>':'';
       exosHtml+='<div style="border-bottom:1px solid #f5f5f5;'+ssBorder+'">'+ssLabel+'<div onclick="toggleExoH(\''+exoKey+'\')" style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;cursor:pointer;"><div style="flex:1;"><div style="font-size:13px;font-weight:500;">'+e.nom+'</div><div style="font-size:11px;color:#9a9a9a;">'+e.series+' series . '+e.reps+' reps</div></div><div style="display:flex;align-items:center;gap:6px;">'+greenDot+'<span id="ea-'+exoKey+'" style="font-size:12px;color:#9a9a9a;">v</span></div></div><div id="ed-'+exoKey+'" style="display:none;padding-bottom:8px;">'+seriesHtml+'</div></div>';
     }
-    var bgColor=isFirst?'#C0392B':'#e8e8e8';
-    var txtColor=isFirst?'white':'#9a9a9a';
+    var dayColors=['#C0392B','#2980B9','#27AE60','#E67E22','#8E44AD','#16A085','#D35400'];
+    var bgColor=dayColors[i%dayColors.length];
+    var txtColor='white';
     var suivant=isFirst?'<span style="background:#C0392B;color:white;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;">Suivant</span>':'';
     var arrowChar=isFirst?'^':'v';
     var ddDisplay=isFirst?'block':'none';
@@ -780,8 +789,43 @@ function importNutrition(){
   inp.onchange=function(e){var f=e.target.files[0];if(!f)return;var r=new FileReader();r.onload=function(ev){try{var data=JSON.parse(ev.target.result);if(data.type!=='jk_coaching_nutrition'){alert('Fichier invalide');return;}client.nutrition=data.nutrition;save();renderNutrition();toast('Nutrition importee ! ');goPage('programme');setTimeout(function(){switchTab('nutri');},100);}catch(err){alert('Erreur fichier');}};r.readAsText(f);};inp.click();
 }
 
-function supprimerProg(){if(!confirm('Supprimer le programme ?'))return;client.programme=null;client.message=null;save();renderHome();renderProgramme();toast('Programme supprime');}
+function toggleSupprMenu(){
+  var m=document.getElementById('suppr-menu');
+  var a=document.getElementById('suppr-arrow');
+  if(!m)return;
+  var open=m.style.display==='block';
+  m.style.display=open?'none':'block';
+  if(a)a.textContent=open?'v':'^';
+}
 
+function supprimerNutrition(){
+  if(!client.nutrition){alert('Aucune nutrition a supprimer');return;}
+  if(!confirm('Supprimer le plan nutrition ?'))return;
+  client.nutrition=null;
+  save();
+  renderNutrition();
+  toast('Alimentation supprimee');
+}
+
+function supprimerProg(){
+  if(!confirm('Supprimer le programme ?'))return;
+  client.programme=null;
+  client.message=null;
+  client.seanceLog={};
+  save();
+  // Vider accueil
+  var hProg=document.getElementById('h-prog');
+  var hMsg=document.getElementById('h-msg');
+  var hSeances=document.getElementById('h-seances');
+  if(hProg)hProg.style.display='none';
+  if(hMsg)hMsg.style.display='none';
+  if(hSeances)hSeances.innerHTML='<div class="empty"><div style="font-size:40px;margin-bottom:10px;">💪</div><div>Importe ton programme dans Profil</div></div>';
+  renderNutrition();
+  toast('Programme supprime');
+}
+
+function ouvrirWA(){var a=document.createElement('a');a.href='https://wa.me/33699084332';a.target='_blank';a.rel='noopener noreferrer';document.body.appendChild(a);a.click();document.body.removeChild(a);}
+function ouvrirEmail(){var a=document.createElement('a');a.href='mailto:jeremie.kam@gmail.com';document.body.appendChild(a);a.click();document.body.removeChild(a);}
 function openLink(url){var a=document.createElement('a');a.href=url;a.target='_blank';a.rel='noopener noreferrer';document.body.appendChild(a);a.click();document.body.removeChild(a);}
 
 window.addEventListener('load',function(){
