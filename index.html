@@ -853,11 +853,41 @@ function calcSemaine(){
 }
 
 function importProg(){
-  var inp=document.createElement('input');inp.type='file';inp.accept='.json';
-  inp.onchange=function(e){var f=e.target.files[0];if(!f)return;var r=new FileReader();r.onload=function(ev){try{var data=JSON.parse(ev.target.result);if(data.type!=='jk_coaching_programme'){alert('Fichier invalide');return;}client.programme=data.programme;if(data.client){if(data.client.poidsDepart&&!client.poidsDepart)client.poidsDepart=data.client.poidsDepart;if(data.client.duree)client.duree=data.client.duree;if(data.client.objectif)client.objectif=data.client.objectif;}if(data.message)client.message=data.message;
-    // Date de debut - demander si pas definie
-    if(!client.dateDebut){var dateStr=prompt('Date de debut du coaching ? (format JJ/MM/AAAA ex: 19/03/2026)');if(dateStr){var parts=dateStr.split('/');if(parts.length===3){var d=new Date(parts[2]+'-'+parts[1]+'-'+parts[0]);if(!isNaN(d)){client.dateDebut=d.toISOString();}}}}
-    calcSemaine();save();renderHome();renderProfil();renderProgramme();toast('Programme importe !');goPage('programme');}catch(err){alert('Erreur fichier');}};r.readAsText(f);};inp.click();
+  var inp=document.createElement('input');
+  inp.type='file';
+  inp.accept='.json';
+  inp.onchange=function(e){
+    var f=e.target.files[0];
+    if(!f)return;
+    var r=new FileReader();
+    r.onload=function(ev){
+      try{
+        var data=JSON.parse(ev.target.result);
+        if(!data||data.type!=='jk_coaching_programme'){alert('Fichier invalide');return;}
+        if(!data.programme){alert('Pas de programme dans ce fichier');return;}
+        client.programme=data.programme;
+        if(data.client){
+          if(data.client.poidsDepart&&!client.poidsDepart)client.poidsDepart=data.client.poidsDepart;
+          if(data.client.duree)client.duree=data.client.duree;
+          if(data.client.objectif)client.objectif=data.client.objectif;
+          if(data.client.dateDebut)client.dateDebut=data.client.dateDebut;
+        }
+        if(data.message)client.message=data.message;
+        calcSemaine();
+        save();
+        renderHome();
+        renderProfil();
+        toast('Programme importe ! Va dans Profil pour definir la date de debut.');
+        goPage('home');
+      }catch(err){
+        alert('Erreur : '+err.message);
+      }
+    };
+    r.readAsText(f,'UTF-8');
+  };
+  document.body.appendChild(inp);
+  inp.click();
+  document.body.removeChild(inp);
 }
 
 function importNutrition(){
